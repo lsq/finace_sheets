@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="content-type" content="text/html;charset=gb2312" />
+    <title>Error</title>
+    <style type="text/css">
+        body {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            color: #222;
+            font: 16px/1.7 'Helvetica Neue', Helvetica, Arial, Sans-serif;
+            background: #eff2f5;
+        }
+
+        .container {
+        }
+
+            .container .error {
+                margin: 169px auto 0;
+                width: 404px;
+            }
+
+                .container .error .header {
+                    overflow: hidden;
+                    font-size: 1.8em;
+                    line-height: 1.2;
+                    margin: 0 0 .33em .33em;
+                }
+
+                    .container .error .header a {
+                        text-decoration: none;
+                        color: #105cb6;
+                        outline: none;
+                    }
+
+                        .container .error .header a img {
+                            border: none;
+                        }
+
+                .container .error .content {
+                    padding: 2em 1.25em;
+                    border: 1px solid #babbbc;
+                    border-radius: 5px;
+                    background: #f7f7f7;
+                    text-align: center;
+                }
+
+                .container .error p {
+                    margin: 0 0 1.7em;
+                    color: #999;
+                }
+
+                .container .error strong {
+                    font-size: 1.1em;
+                    color: #000;
+                }
+
+                .container .error hr {
+                    margin: 1.3em 0;
+                }
+
+                .container .error p:last-child {
+                    margin-bottom: 0;
+                }
+    </style>
+    <script type="text/javascript" src="brandresource.js" ></script>
+    <script>
+        KD.RegisterAfterBrand(function () {
+            if (KD.Brand && KD.Brand.Resource1) {
+                var img = document.getElementById("logoimg");
+                if (img) {
+                    img.src = KD.GetUrlOrigin() + KD.Brand.Resource1;
+                    if (KD.Brand.DefaultName)
+                        img.alt = KD.Brand.DefaultName;
+                }
+            }
+        });
+      </script>
+</head>
+<body>
+    <div class="container">
+        <div class="error">
+            <h1 class="header">
+                <a href="/k3cloud" class="logo">
+                    <img src="/k3cloud/images/mobile/logo_kingdee.png" alt="金蝶K/3 Cloud" />
+                </a>
+            </h1>
+            <div class="content">
+                <p>
+                    <strong>:( 很抱歉，您所访问的页面不存在</strong>
+                </p>
+                <p>来源链接是否正确？</p>
+                <hr>
+                <p>
+                    <a href="/k3cloud">返回首页</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
