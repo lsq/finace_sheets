@@ -1,5 +1,3 @@
-﻿Set-Cookie:kdservice-sessionid=474be3e4-eab1-40b8-a1a6-e28108981fdb; expires=Thu, 20-Jul-2023 05:35:08 GMT; path=/; secure; HttpOnly
-Set-Cookie:ASP.NET_SessionId=qchbskdiabcqdh4gyvcjnshv; path=/; secure; HttpOnly; SameSite=Lax
-Set-Cookie:xXxX_5af_r0u4e=2f301911a0b78c4fa8721f09aa0d6f5e; Path=/; Max-Age=86400; Expires=Fri, 21-Jul-23 04:35:08 GMT
-Set-Cookie:2037dfbb-927e-41ac-a6e9-e2b5863edd71=ae09eaf98de0eeaefdc1a713ea47c701; Path=/; Max-Age=86400; Expires=Fri, 21-Jul-23 04:35:08 GMT; HttpOnly
+﻿Set-Cookie:kdservice-sessionid=8519dfc6-b050-45af-a76f-f6b26e4c764c; expires=Fri, 28-Jul-2023 07:56:46 GMT; path=/; secure; HttpOnly
+Set-Cookie:ASP.NET_SessionId=qchbskdiabcqdh4gyvcjnshv; path=/; secure; HttpOnly; SameSite=None
 
