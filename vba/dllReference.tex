@@ -1,0 +1,263 @@
+\section{VBA动态引用dll}
+列出Excel VBA工程或Access数据库中引用的所有DLL库或ActiveX控件
+
+
+可以使用下面的参考代码
+
+作者：[Office交流网](http%3A//www.office-cn.net/thread-38113-1-1.html) fans.net版主
+
+Option Compare Database
+Dim blnMark As Boolean
+Dim intMark As Integer
+'当指向 Application 对象的变量超出范围时，它所表示的 Microsoft Access 实例也将关闭。
+'所以，必须在模块级说明这个变量。
+Dim appAccess As Access.Application
+
+'获取其他Access数据库中引用的所有类库和控件
+Function GetRefrencesString(strDB As String) As String
+On Error GoTo Err_GetRefrencesString
+
+Dim i As Integer
+
+Set appAccess = CreateObject("Access.Application")
+appAccess.OpenCurrentDatabase strDB
+
+For i = 1 To appAccess.Application.References.Count
+GetRefrencesString = GetRefrencesString & appAccess.Application.References(i).Name & _
+":" & vbTab & appAccess.Application.References(i).FullPath & vbCrLf
+Next
+
+appAccess.CloseCurrentDatabase
+Set appAccess = Nothing
+
+Exit_GetRefrencesString:
+Exit Function
+
+Err_GetRefrencesString:
+Set appAccess = Nothing
+MsgBox Err.Description
+Resume Exit_GetRefrencesString
+
+End Function
+
+
+​    
+
+'列出程序中引用的所有类库和控件
+Function ListRefrences() As String
+Dim i As Integer
+For i = 1 To Application.References.Count
+ListRefrences = ListRefrences & Application.References(i).Name & ":" & vbTab _
+& Application.References(i).FullPath & vbCrLf
+Next
+End Function
+
+
+
+二、DLL链接库或控件的前期引用与后期引用
+------------------------
+
+vba要引用第三方库或控件，就要先添加DLL链接库或控件的引用，有两种引用方式
+
+**1）前期引用**
+
+前期引用，是在“工具”菜单下的“引用”命令中添加需要引用的库，如下图所示。
+
+<img src="https://pic3.zhimg.com/v2-53559ceae09673d321f36022454f894a\_b.jpg" data-caption="" data-size="normal" data-rawwidth="1050" data-rawheight="757" class="origin\_image zh-lightbox-thumb" width="1050" data-original="https://pic3.zhimg.com/v2-53559ceae09673d321f36022454f894a\_r.jpg"/>
+
+![](data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1050' height='757'></svg>)
+
+**2）后期引用**
+
+则是使用类似这样的语句创建：
+
+直接用 CreateObject(“Scripting.Dictionary”)语句 这就是后期引用。
+
+如引用Excel对象
+
+Sub GetExcel()
+'Bind to an existing or created instance of Microsoft Excel
+Dim objApp As Object
+'Attempt to bind to an open instance
+On Error Resume Next
+Set objApp = GetObject(, "Excel.Application")
+
+If Err.Number <> 0 Then
+'Could not get instance, so create a new one
+Err.Clear
+Set objApp = CreateObject("Excel.Application")
+With objApp
+.Visible = True
+.Workbooks.Add
+End With
+End If
+End Sub
+
+**两者区别：**
+
+1）前期引用可以直接列出成员属性、方法列表
+
+2）后期引用不可以直接列出成员属性、方法列表。但不会因为控件或DLL不存在，程序一打开就出现引用丢失的情况，不是所有对象或控件均支持后期引用的(tmtony)。另有些有界面和窗体的控件不太方便使用后期引用。
+
+
+
+三、通过VBA代码来动态添加前期引用
+------------------
+
+前期引用一般都是通过手动添加要引用库或ActiveX(OCX)控件的方式实现，但也可以使用vba代码自动添加需要的引用库，这里就要用到 References对象的AddFromGuid方法或者AddFromFile方法。
+
+### **1）如果文件位置固定，可以使用AddFromFile方法**
+
+摘自：[Office交流网](https://link.zhihu.com/?target=http%3A//www.office-cn.net/forum.php%3Fmod%3Dredirect%26goto%3Dfindpost%26ptid%3D83129%26pid%3D529320%26fromuid%3D75)
+
+可加载一个空窗体如下，注册控件，再启动窗体2打开实际功能。另外也将控件打包成安装包。
+Private Sub Form_Open(Cancel As Integer)
+
+DoCmd.RunCommand acCmdAppMinimize
+Me.Visible = False
+
+AutoRegFile "控件名"
+
+DoCmd.Close
+DoCmd.OpenForm "窗体2"
+End Sub
+
+'这是网上高手写的
+Function AutoRegFile(FileName As String)
+Dim reged As Boolean
+Dim RegFile1 As String
+Dim RegFile2 As String
+Dim BeReg As String, strDtn As String, strDtn1 As String
+Dim ref As Reference
+
+Dim RetVal
+BeReg = CurrentProject.Path & "\ocx\" & FileName          '控件存放位置，例子中是放在工程当前目录下ocx子目录
+strDtn = Environ("windir") & "\system\" & FileName           '返回系统路径
+strDtn1 = Environ("windir") & "\system32\" & FileName           '返回系统路径
+On Error Resume Next
+
+RegFile1 = Environ("windir") & "\system\regsvr32.exe "
+RegFile2 = Environ("windir") & "\system32\regsvr32.exe "
+
+If Dir(RegFile1) <> "" Or Dir(RegFile2) <> "" Then
+If Dir(RegFile1) <> "" Then
+FileCopy BeReg, strDtn
+RegFile1 = RegFile1 & "/s" & " " & strDtn
+RetVal = Shell(RegFile1, 1)
+'            Set ref = References.AddFromFile(Environ("windir") & "\system\" & FileName)
+Else
+FileCopy BeReg, strDtn1
+RegFile2 = RegFile2 & "/s" & " " & strDtn1
+RetVal = Shell(RegFile2, 1)
+'            Set ref = References.AddFromFile(Environ("windir") & "\system32\" & FileName)    '设置引用
+End If
+Else
+MsgBox "找不到regsvr32.exe文件，你可能无法使用本软件！", vbCritical, "无法自动注册控件"
+End If
+End Function
+
+AddFromFile方法是通过添加具体的文件路径的方法来实现引用，这种方法缺点就是，不同的操作系统、不同用户的安装路径可能会不同，这样路径不一致，所以你做好的程序复制到用户或同事的电脑，可能会出错。
+
+所以就要用到我们第2种方法：AddFromGuid方法
+
+### **2）使用AddFromGuid方法动态添加引用**
+
+**AddFromGuid方法是直接根据全局唯一标识符字符串globally unique identifier (GUID) 来添加引用，这种方法可以跨操作系统、跨版本都有效。一般知名厂家的DLL或OCX 的GUID是统一的。**
+
+全局唯一标识符字符串(GUID) 是一个唯一标识符，它不会因为引用的版本号的变化而变化。所以通过AddFromGuid方法可以保证引用的准确性。不会像AddFromFile方法因为路径不同而出错！
+
+
+
+### **3）AddFromGuid方法使用方法如下：**
+
+AddFromGuid(Guid, Major, Minor) As Reference
+
+
+参数guid, major, minor分别表示引用的全局唯一标识符，major 主版本号和minor 小版本号。
+
+AddFromGUID方法基于标识类型库的 GUID创建一个引用对象。参考对象。
+
+**参数**
+
+姓名 必需/可选 数据类型 描述
+
+指导 必需的 细绳 标识类型库的 GUID。
+
+主要的 必需的 长 参考的主要版本号。
+
+次要的 必需的 长 参考的次要版本号。
+
+GUID属性返回指定引用对象的GUID。如果您存储了GUID属性的值，则可以使用它来重新创建已损坏的引用。
+
+如果您为主要和次要版本参数添加使用 0 的 GUID 引用，它将解析为对象库的最新安装版本。
+
+
+
+### **4）**AddFromGuid一些使用**示例**
+
+以下示例根据用户系统上的 GUID重新创建对Microsoft Scripting Runtime 1.0 版的引用。
+
+References.AddFromGuid "{420B2830-E718-11CF-893D-00A0C9054228}", 1, 0
+
+以下示例添加了对Microsoft Excel 对象库的引用，但不知道当前安装的是哪个版本。
+
+References.AddFromGuid "{00020813-0000-0000-C000-000000000046}", 0, 0
+
+为了方便查看这些参数，我们可以通过先手动添加引用的库（如Excel常用的字典库 Scripting.Dictionary），然后用代码获取它的相关属性：
+
+Sub GetRefInfo()
+Dim ref As Reference
+'遍历显示所有引用的相关信息
+For Each ref In ThisWorkbook.VBProject.References
+With ref
+Debug.Print "引用的名称:" & .Name
+Debug.Print "引用的路径:" & .FullPath
+Debug.Print "GUID:" & .GUID
+Debug.Print "Major:" & .Major
+Debug.Print "Minor:" & .Minor
+Debug.Print "描述" & .Description
+i = i + 1
+End With
+Next
+End Sub
+
+**如 Scripting.Dictionary 对应引用是Microsoft Scripting Runtime**  
+**GUID: {420B2830-E718-11CF-893D-00A0C9054228}**  
+**major: 1**  
+**minor: 0**
+
+这样就可以通过VBA代码自动 添加Microsoft Scripting Runtime：
+
+如果重复添加 会弹出“名称冲突的提示”，可以先用代码先去除已判断的引用，或判断引用是否存在，或直接跳过错误处理：
+
+Sub AddRef()
+On Error Resume Next '或先 用 application.References.Remove  去掉引用
+Dim ref As Reference
+Set ref = ThisWorkbook.VBProject.References.AddFromGuid("{420B2830-E718-11CF-893D-00A0C9054228}", 1, 0)
+End Sub
+
+
+**以下是一些常用的对象的GUID及VBA代码动态添加前期引用的代码：**
+
+'excel对象
+Set ref = ThisWorkbook.VBProject.References.AddFromGuid("{00020813-0000-0000-C000-000000000046}", 1, 9)
+'word对象
+Set ref = ThisWorkbook.VBProject.References.AddFromGuid("{00020905-0000-0000-C000-000000000046}", 8, 7)
+'ppt对象
+Set ref = ThisWorkbook.VBProject.References.AddFromGuid("{91493440-5A91-11CF-8700-00AA0060263B}", 2, 12)
+'WinHttp对象
+Set ref = ThisWorkbook.VBProject.References.AddFromGuid("{662901FC-6951-4854-9EB2-D9A2570F2B2E}", 5, 1)
+'MSHTML对象
+Set ref = ThisWorkbook.VBProject.References.AddFromGuid("{3050F1C5-98B5-11CF-BB82-00AA00BDCE0B}", 4, 0)
+'VBIDE对象
+Set ref = ThisWorkbook.VBProject.References.AddFromGuid("{0002E157-0000-0000-C000-000000000046}", 5, 3)
+
+
+​        
+
+
+
+### 5）注意事项：
+
+1、在引用未成功添加之前，不要引用库中的相关函数及方法  
+2、Access 或 Excel 用户窗体可以用一个干净的启动窗体先实现代码动态引用，待引用成功后再打开使用引用库的其它窗体。

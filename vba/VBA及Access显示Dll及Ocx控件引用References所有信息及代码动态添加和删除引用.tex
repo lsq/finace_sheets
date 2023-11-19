@@ -1,0 +1,467 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\newenvironment{Shaded}{}{}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{1.00,0.00,0.00}{\textbf{#1}}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.49,0.56,0.16}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{#1}}
+\newcommand{\BuiltInTok}[1]{\textcolor[rgb]{0.00,0.50,0.00}{#1}}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.53,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.56,0.13,0.00}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.73,0.13,0.13}{\textit{#1}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{1.00,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.02,0.16,0.49}{#1}}
+\newcommand{\ImportTok}[1]{\textcolor[rgb]{0.00,0.50,0.00}{\textbf{#1}}}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.40,0.40,0.40}{#1}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.74,0.48,0.00}{#1}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.73,0.40,0.53}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.10,0.09,0.49}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{#1}}}}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\author{}
+\date{}
+
+\begin{document}
+
+目录
+
+收起
+
+一、列出Excel VBA工程或Access数据库中引用的所有DLL库或ActiveX控件
+
+二、DLL链接库或控件的前期引用与后期引用
+
+三、通过VBA代码来动态添加前期引用
+
+1）如果文件位置固定，可以使用AddFromFile方法
+
+2）使用AddFromGuid方法动态添加引用
+
+3）AddFromGuid方法使用方法如下：
+
+4）AddFromGuid一些使用示例
+
+5）注意事项：
+
+6）Access使用动态引用开发的成品系统
+
+\textbf{用代码写代码，注意：本文需要有一定的VBA基础及Excel或Access开发经验。}
+
+**如阅读有些吃力，可以先收藏及关注我们
+
+\href{//www.zhihu.com/people/61181a729ad96882fd24553e3f54ac6f}{@小辣椒高效Office}
+
+**
+
+\subsection{一、列出Excel
+VBA工程或Access数据库中引用的所有DLL库或ActiveX控件}\label{ux4e00ux5217ux51faexcel-vbaux5de5ux7a0bux6216accessux6570ux636eux5e93ux4e2dux5f15ux7528ux7684ux6240ux6709dllux5e93ux6216activexux63a7ux4ef6}
+
+可以使用下面的参考代码
+
+作者：\href{https://link.zhihu.com/?target=http\%3A//www.office-cn.net/thread-38113-1-1.html}{Office交流网}
+fans.net版主
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{Option Compare Database}
+\NormalTok{Dim blnMark As Boolean}
+\NormalTok{Dim intMark As Integer}
+\NormalTok{\textquotesingle{}当指向 Application 对象的变量超出范围时，它所表示的 Microsoft Access 实例也将关闭。}
+\NormalTok{\textquotesingle{}所以，必须在模块级说明这个变量。}
+\NormalTok{Dim appAccess As Access.Application}
+
+\NormalTok{\textquotesingle{}获取其他Access数据库中引用的所有类库和控件}
+\NormalTok{Function GetRefrencesString(strDB As String) As String}
+\NormalTok{On Error GoTo Err\_GetRefrencesString}
+
+\NormalTok{Dim i As Integer}
+
+\NormalTok{    Set appAccess = CreateObject("Access.Application")}
+\NormalTok{        appAccess.OpenCurrentDatabase strDB}
+    
+\NormalTok{    For i = 1 To appAccess.Application.References.Count}
+\NormalTok{        GetRefrencesString = GetRefrencesString \& appAccess.Application.References(i).Name \& \_}
+\NormalTok{                        ":" \& vbTab \& appAccess.Application.References(i).FullPath \& vbCrLf}
+\NormalTok{    Next}
+    
+\NormalTok{        appAccess.CloseCurrentDatabase}
+\NormalTok{    Set appAccess = Nothing}
+   
+\NormalTok{Exit\_GetRefrencesString:}
+\NormalTok{    Exit Function}
+
+\NormalTok{Err\_GetRefrencesString:}
+\NormalTok{    Set appAccess = Nothing}
+\NormalTok{    MsgBox Err.Description}
+\NormalTok{    Resume Exit\_GetRefrencesString}
+
+\NormalTok{End Function}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{\textquotesingle{}列出程序中引用的所有类库和控件}
+\NormalTok{Function ListRefrences() As String}
+\NormalTok{Dim i As Integer}
+\NormalTok{For i = 1 To Application.References.Count}
+\NormalTok{     ListRefrences = ListRefrences \& Application.References(i).Name \& ":" \& vbTab \_}
+\NormalTok{                            \& Application.References(i).FullPath \& vbCrLf}
+\NormalTok{Next}
+\NormalTok{End Function}
+\end{Highlighting}
+\end{Shaded}
+
+\subsection{二、DLL链接库或控件的前期引用与后期引用}\label{ux4e8cdllux94feux63a5ux5e93ux6216ux63a7ux4ef6ux7684ux524dux671fux5f15ux7528ux4e0eux540eux671fux5f15ux7528}
+
+vba要引用第三方库或控件，就要先添加DLL链接库或控件的引用，有两种引用方式
+
+\textbf{1）前期引用}
+
+前期引用，是在``工具''菜单下的``引用''命令中添加需要引用的库，如下图所示。
+
+\includegraphics{https://pic3.zhimg.com/v2-53559ceae09673d321f36022454f894a/_b.jpg}
+
+\textbf{2）后期引用}
+
+则是使用类似这样的语句创建：
+
+直接用 CreateObject(``Scripting.Dictionary'')语句 这就是后期引用。
+
+如引用Excel对象
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{Sub GetExcel()}
+\NormalTok{\textquotesingle{}Bind to an existing or created instance of Microsoft Excel}
+\NormalTok{Dim objApp As Object}
+\NormalTok{\textquotesingle{}Attempt to bind to an open instance}
+\NormalTok{On Error Resume Next}
+\NormalTok{Set objApp = GetObject(, "Excel.Application")}
+
+\NormalTok{If Err.Number \textless{}\textgreater{} 0 Then}
+\NormalTok{    \textquotesingle{}Could not get instance, so create a new one}
+\NormalTok{    Err.Clear}
+\NormalTok{    Set objApp = CreateObject("Excel.Application")}
+\NormalTok{    With objApp}
+\NormalTok{        .Visible = True}
+\NormalTok{        .Workbooks.Add}
+\NormalTok{    End With}
+\NormalTok{End If}
+\NormalTok{End Sub}
+\end{Highlighting}
+\end{Shaded}
+
+\textbf{两者区别：}
+
+1）前期引用可以直接列出成员属性、方法列表
+
+2）后期引用不可以直接列出成员属性、方法列表。但不会因为控件或DLL不存在，程序一打开就出现引用丢失的情况，不是所有对象或控件均支持后期引用的(tmtony)。另有些有界面和窗体的控件不太方便使用后期引用。
+
+\subsection{三、通过VBA代码来动态添加前期引用}\label{ux4e09ux901aux8fc7vbaux4ee3ux7801ux6765ux52a8ux6001ux6dfbux52a0ux524dux671fux5f15ux7528}
+
+前期引用一般都是通过手动添加要引用库或ActiveX(OCX)控件的方式实现，但也可以使用vba代码自动添加需要的引用库，这里就要用到
+References对象的AddFromGuid方法或者AddFromFile方法。
+
+\subsubsection{\texorpdfstring{\textbf{1）如果文件位置固定，可以使用AddFromFile方法}}{1）如果文件位置固定，可以使用AddFromFile方法}}\label{1uxff09ux5982ux679cux6587ux4ef6ux4f4dux7f6eux56faux5b9aux53efux4ee5ux4f7fux7528addfromfileux65b9ux6cd5}
+
+摘自：\href{https://link.zhihu.com/?target=http\%3A//www.office-cn.net/forum.php\%3Fmod\%3Dredirect\%26goto\%3Dfindpost\%26ptid\%3D83129\%26pid\%3D529320\%26fromuid\%3D75}{Office交流网}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{可加载一个空窗体如下，注册控件，再启动窗体2打开实际功能。另外也将控件打包成安装包。}
+\NormalTok{Private Sub Form\_Open(Cancel As Integer)}
+
+\NormalTok{    DoCmd.RunCommand acCmdAppMinimize}
+\NormalTok{    Me.Visible = False}
+
+\NormalTok{    AutoRegFile "控件名"}
+
+\NormalTok{    DoCmd.Close}
+\NormalTok{    DoCmd.OpenForm "窗体2"}
+\NormalTok{End Sub}
+
+\NormalTok{\textquotesingle{}这是网上高手写的}
+\NormalTok{Function AutoRegFile(FileName As String)}
+\NormalTok{    Dim reged As Boolean}
+\NormalTok{    Dim RegFile1 As String}
+\NormalTok{    Dim RegFile2 As String}
+\NormalTok{    Dim BeReg As String, strDtn As String, strDtn1 As String}
+\NormalTok{    Dim ref As Reference}
+
+\NormalTok{    Dim RetVal}
+\NormalTok{    BeReg = CurrentProject.Path \& "\textbackslash{}ocx\textbackslash{}" \& FileName          \textquotesingle{}控件存放位置，例子中是放在工程当前目录下ocx子目录}
+\NormalTok{    strDtn = Environ("windir") \& "\textbackslash{}system\textbackslash{}" \& FileName           \textquotesingle{}返回系统路径}
+\NormalTok{    strDtn1 = Environ("windir") \& "\textbackslash{}system32\textbackslash{}" \& FileName           \textquotesingle{}返回系统路径}
+\NormalTok{    On Error Resume Next}
+
+\NormalTok{    RegFile1 = Environ("windir") \& "\textbackslash{}system\textbackslash{}regsvr32.exe "}
+\NormalTok{    RegFile2 = Environ("windir") \& "\textbackslash{}system32\textbackslash{}regsvr32.exe "}
+
+\NormalTok{    If Dir(RegFile1) \textless{}\textgreater{} "" Or Dir(RegFile2) \textless{}\textgreater{} "" Then}
+\NormalTok{        If Dir(RegFile1) \textless{}\textgreater{} "" Then}
+\NormalTok{            FileCopy BeReg, strDtn}
+\NormalTok{            RegFile1 = RegFile1 \& "/s" \& " " \& strDtn}
+\NormalTok{            RetVal = Shell(RegFile1, 1)}
+\NormalTok{\textquotesingle{}            Set ref = References.AddFromFile(Environ("windir") \& "\textbackslash{}system\textbackslash{}" \& FileName)}
+\NormalTok{        Else}
+\NormalTok{            FileCopy BeReg, strDtn1}
+\NormalTok{            RegFile2 = RegFile2 \& "/s" \& " " \& strDtn1}
+\NormalTok{            RetVal = Shell(RegFile2, 1)}
+\NormalTok{\textquotesingle{}            Set ref = References.AddFromFile(Environ("windir") \& "\textbackslash{}system32\textbackslash{}" \& FileName)    \textquotesingle{}设置引用}
+\NormalTok{        End If}
+\NormalTok{    Else}
+\NormalTok{        MsgBox "找不到regsvr32.exe文件，你可能无法使用本软件！", vbCritical, "无法自动注册控件"}
+\NormalTok{    End If}
+\NormalTok{End Function}
+\end{Highlighting}
+\end{Shaded}
+
+AddFromFile方法是通过添加具体的文件路径的方法来实现引用，这种方法缺点就是，不同的操作系统、不同用户的安装路径可能会不同，这样路径不一致，所以你做好的程序复制到用户或同事的电脑，可能会出错。
+
+所以就要用到我们第2种方法：AddFromGuid方法
+
+\subsubsection{\texorpdfstring{\textbf{2）使用AddFromGuid方法动态添加引用}}{2）使用AddFromGuid方法动态添加引用}}\label{2uxff09ux4f7fux7528addfromguidux65b9ux6cd5ux52a8ux6001ux6dfbux52a0ux5f15ux7528}
+
+\textbf{AddFromGuid方法是直接根据全局唯一标识符字符串globally unique
+identifier (GUID)
+来添加引用，这种方法可以跨操作系统、跨版本都有效。一般知名厂家的DLL或OCX
+的GUID是统一的。}
+
+全局唯一标识符字符串(GUID)
+是一个唯一标识符，它不会因为引用的版本号的变化而变化。所以通过AddFromGuid方法可以保证引用的准确性。不会像AddFromFile方法因为路径不同而出错！
+
+\subsubsection{\texorpdfstring{\textbf{3）AddFromGuid方法使用方法如下：}}{3）AddFromGuid方法使用方法如下：}}\label{3uxff09addfromguidux65b9ux6cd5ux4f7fux7528ux65b9ux6cd5ux5982ux4e0b}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{AddFromGuid(Guid, Major, Minor) As Reference}
+\end{Highlighting}
+\end{Shaded}
+
+参数guid, major, minor分别表示引用的全局唯一标识符，major
+主版本号和minor 小版本号。
+
+AddFromGUID方法基于标识类型库的 GUID创建一个引用对象。参考对象。
+
+\textbf{参数}
+
+姓名 必需/可选 数据类型 描述
+
+指导 必需的 细绳 标识类型库的 GUID。
+
+主要的 必需的 长 参考的主要版本号。
+
+次要的 必需的 长 参考的次要版本号。
+
+GUID属性返回指定引用对象的GUID。如果您存储了GUID属性的值，则可以使用它来重新创建已损坏的引用。
+
+如果您为主要和次要版本参数添加使用 0 的 GUID
+引用，它将解析为对象库的最新安装版本。
+
+\subsubsection{\texorpdfstring{\textbf{4）}AddFromGuid一些使用\textbf{示例}}{4）AddFromGuid一些使用示例}}\label{4uxff09addfromguidux4e00ux4e9bux4f7fux7528ux793aux4f8b}
+
+以下示例根据用户系统上的 GUID重新创建对Microsoft Scripting Runtime 1.0
+版的引用。
+
+References.AddFromGuid "\{420B2830-E718-11CF-893D-00A0C9054228\}", 1, 0
+
+以下示例添加了对Microsoft Excel
+对象库的引用，但不知道当前安装的是哪个版本。
+
+References.AddFromGuid "\{00020813-0000-0000-C000-000000000046\}", 0, 0
+
+为了方便查看这些参数，我们可以通过先手动添加引用的库（如Excel常用的字典库
+Scripting.Dictionary），然后用代码获取它的相关属性：
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{Sub GetRefInfo()}
+\NormalTok{    Dim ref As Reference}
+\NormalTok{        \textquotesingle{}遍历显示所有引用的相关信息}
+\NormalTok{        For Each ref In ThisWorkbook.VBProject.References}
+\NormalTok{            With ref}
+\NormalTok{                Debug.Print "引用的名称:" \& .Name}
+\NormalTok{                Debug.Print "引用的路径:" \& .FullPath}
+\NormalTok{                Debug.Print "GUID:" \& .GUID}
+\NormalTok{                Debug.Print "Major:" \& .Major}
+\NormalTok{                Debug.Print "Minor:" \& .Minor}
+\NormalTok{                Debug.Print "描述" \& .Description}
+\NormalTok{                i = i + 1}
+\NormalTok{            End With}
+\NormalTok{        Next}
+\NormalTok{End Sub}
+\end{Highlighting}
+\end{Shaded}
+
+\textbf{如 Scripting.Dictionary 对应引用是Microsoft Scripting Runtime}\\
+\textbf{GUID: \{420B2830-E718-11CF-893D-00A0C9054228\}}\\
+\textbf{major: 1}\\
+\textbf{minor: 0}
+
+这样就可以通过VBA代码自动 添加Microsoft Scripting Runtime：
+
+如果重复添加
+会弹出``名称冲突的提示''，可以先用代码先去除已判断的引用，或判断引用是否存在，或直接跳过错误处理：
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{Sub AddRef()}
+\NormalTok{    On Error Resume Next \textquotesingle{}或先 用 application.References.Remove  去掉引用}
+\NormalTok{    Dim ref As Reference}
+\NormalTok{    Set ref = ThisWorkbook.VBProject.References.AddFromGuid("\{420B2830{-}E718{-}11CF{-}893D{-}00A0C9054228\}", 1, 0)}
+\NormalTok{End Sub}
+\end{Highlighting}
+\end{Shaded}
+
+\textbf{以下是一些常用的对象的GUID及VBA代码动态添加前期引用的代码：}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{    \textquotesingle{}excel对象}
+\NormalTok{    Set ref = ThisWorkbook.VBProject.References.AddFromGuid("\{00020813{-}0000{-}0000{-}C000{-}000000000046\}", 1, 9)}
+\NormalTok{    \textquotesingle{}word对象}
+\NormalTok{    Set ref = ThisWorkbook.VBProject.References.AddFromGuid("\{00020905{-}0000{-}0000{-}C000{-}000000000046\}", 8, 7)}
+\NormalTok{    \textquotesingle{}ppt对象}
+\NormalTok{    Set ref = ThisWorkbook.VBProject.References.AddFromGuid("\{91493440{-}5A91{-}11CF{-}8700{-}00AA0060263B\}", 2, 12)}
+\NormalTok{    \textquotesingle{}WinHttp对象}
+\NormalTok{    Set ref = ThisWorkbook.VBProject.References.AddFromGuid("\{662901FC{-}6951{-}4854{-}9EB2{-}D9A2570F2B2E\}", 5, 1)}
+\NormalTok{    \textquotesingle{}MSHTML对象}
+\NormalTok{    Set ref = ThisWorkbook.VBProject.References.AddFromGuid("\{3050F1C5{-}98B5{-}11CF{-}BB82{-}00AA00BDCE0B\}", 4, 0)}
+\NormalTok{    \textquotesingle{}VBIDE对象}
+\NormalTok{    Set ref = ThisWorkbook.VBProject.References.AddFromGuid("\{0002E157{-}0000{-}0000{-}C000{-}000000000046\}", 5, 3)}
+\end{Highlighting}
+\end{Shaded}
+
+\subsubsection{5）注意事项：}\label{5uxff09ux6ce8ux610fux4e8bux9879}
+
+1、在引用未成功添加之前，不要引用库中的相关函数及方法\\
+2、Access 或 Excel
+用户窗体可以用一个干净的启动窗体先实现代码动态引用，待引用成功后再打开使用引用库的其它窗体。
+
+\subsubsection{6）Access使用动态引用开发的成品系统}\label{6uxff09accessux4f7fux7528ux52a8ux6001ux5f15ux7528ux5f00ux53d1ux7684ux6210ux54c1ux7cfbux7edf}
+
+我们的Access通用开发平台核心库是DevLib.mde
+(改名为\href{https://link.zhihu.com/?target=http\%3A//Devlib.net}{http://Devlib.net}
+)
+然后在Main.mdb中使用启动代码动态添加对\href{https://link.zhihu.com/?target=http\%3A//Devlib.net}{http://Devlib.net}的引用，这样无论程序复制到哪个路径，均能正常运行。
+
+\href{https://link.zhihu.com/?target=http\%3A//www.office-cn.net/product/2.html}{}
+
+\href{https://link.zhihu.com/?target=http\%3A//www.office-cn.net/product/2.html}{Access通用开发平台标准版(免费使用)
+- Access开发平台 - Office交流网}
+
+\includegraphics{https://pic2.zhimg.com/v2-2bb71ff974318f5d8bf0222bbfc9d091/_b.jpg}
+
+\includegraphics{https://pic2.zhimg.com/v2-353af8777d51d7364ebc47ca40b716d9/_b.jpg}
+
+\includegraphics{https://pic4.zhimg.com/v2-19a87e370e7c0c31f89c9bf8d77765fb/_b.jpg}
+
+如果您对Excel VBA
+及Access开发部门级或企业级管理系统有兴趣，也可咨询我或私聊：
+
+\includegraphics{https://pica.zhimg.com/v2-84c311f9235b1da27cc3af1ce7b643c2_l.jpg?source=f2fdee93}
+
+小辣椒高效Office
+
+19 次咨询
+
+5.0
+
+18326 次赞同
+
+去咨询
+
+**希望这篇文章对您有用，可点赞 收藏 关注 三连
+
+\href{//www.zhihu.com/people/61181a729ad96882fd24553e3f54ac6f}{@小辣椒高效Office}
+
+**
+
+本文转自
+\url{https://zhuanlan.zhihu.com/p/524202003?utm_id=0}，如有侵权，请联系删除。
+
+\end{document}

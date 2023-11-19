@@ -1,0 +1,654 @@
+% docx2tex 1.8 --- ``Who let the docx out?'' 
+% 
+% docx2tex is Open Source and  
+% you can download it on GitHub: 
+% https://github.com/transpect/docx2tex 
+%  
+%\documentclass{ctexart} 
+%\usepackage[T1]{fontenc} 
+%\usepackage[utf8]{inputenc} 
+%\usepackage{hyperref} 
+%\usepackage{multirow} 
+%\usepackage{tabularray} 
+%\usepackage{color} 
+%\usepackage{textcomp} 
+%\usepackage{tipa}
+%\usepackage{amsmath} 
+%\usepackage{amssymb} 
+%\usepackage{amsfonts} 
+%\usepackage{amsxtra} 
+%\usepackage{wasysym} 
+%\usepackage{isomath} 
+%\usepackage{mathtools} 
+%\usepackage{txfonts} 
+%\usepackage{upgreek} 
+%\usepackage{enumerate} 
+%\usepackage{tensor} 
+%\usepackage{pifont} 
+%\usepackage{ulem} 
+%\usepackage{xfrac} 
+%\usepackage{arydshln} 
+%\usepackage[english]{babel}
+%
+%\begin{document}
+\section{RecoredSet对象}
+前面已经提到，记录集是ADO中最常用的对象，这并不值得奇怪。毕竟，他们包含着数据。但是，对于记录集还有比想象的更多的内容，知道数据如何保存和处理很重要，因为这为选择使用哪种记录集提供了更多的参考。
+
+    记录集有不同的类型，在一些细小的地方存在着差异，很容易造成失误。首先需要认真谈论的是光标的概念。
+
+\subsection{光标}
+
+    光标（cursor）是让许多人感到困惑的概念，但实际上非常的简单。
+    光标用来管理记录集和记录集的当前位置，后者是由当前记录指针来处理的。
+    这不是Recordset对象所做的吗？是的，但是记录集也是依靠它的光标。这仍然没有回答光标是什么这个问题，那么先来看一个记录集，如Table~\ref{t:recored}所示：
+
+%\begin{table}
+\begin{longtblr}[caption =  {记录集},
+	%presep = 20pt,
+	label={t:recored},
+	]{
+	colspec={Q[m,2cm]ccc},
+	column{1} =  {c},
+	hline{1,Z} = {2pt},
+	hline{2} = {1pt},} 
+AU\_ID & AU\_L AME & AU\_FNAME & PHONE\\ 
+172-32-176 & White & Bob & 408496-7223\\ 
+213-46-915 & Green & Marjorie & 415986-7020\\ 
+238-95-766 & Carson & Cheryl & 415548-7723\\ 
+267-41-394 & O'Leary & Michael & 408286-2428\\ 
+274-80-391 & Straight & Dean & 415834-2919\\ 
+341-22-782 & Smith & Meander & 913843-0462\\ 
+\end{longtblr}
+%\end{table}
+
+    这里有六行四列。打开一个记录集，当前记录就是第一个记录，即为Bob White的那条记录。用什么来标识当前记录？用当前记录指针。那么又如何处理这个指针呢？当需要移到下一条记录或者是其他记录时，是通过光标来实现的。在访问当前行的字段时，光标知道目前位于哪一行，所以能返回正确的值。如果试图移出记录集的最后一行，光标也会处理。
+
+    理解光标的一种好方法是将光标想象成为一个可以在记录集内移动的窗口。这一窗口与记录集的单个行同样高，同样长，因此一次只能看到一行数据值。当你移到另一条记录时，这个窗口也跟着移动。
+
+    也许你认为这相当简单，但它确实很重要，因为能用光标做什么是由光标的类型决定的。
+\begin{enumerate}
+	\item  光标类型
+
+光标的类型标识了光标所能够提供的功能。这里有四种类型的光标：
+\begin{itemize}
+	\item  静态（adOpenStatic）。静态光标含有对记录的静态拷贝。这意味着在记录集建立之后，记录集的内容就固定了。其他用户对记录的更改、添加和删除都是不可见的。允许在记录集中向前、向后移动。
+
+\item 只许前移（adOpenForwardOnly）。缺省的光标类型，除了只允许向前移动外，其余的与静态光标相同。
+
+\item 动态（adOpenDynamic）。动态的光标没有固定的记录集。其他用户的更改、添加或删除操作在记录集中是可见的。允许在记录集中向前、向后移动。
+
+\item 键集（adOpenKeyset）。键集类型的光标除了记录集是固定的，其余的与动态光标相似。可以看到其他用户的修改，但新记录却不可见。如果别的用户删除了记录，那么这些记录在记录集中将会变得不可访问。这项功能是通过标识记录集的键来实现的，所以键一直保留着，即使改变或删除记录。
+
+为了理解这些概念，再想象光标窗口。对于只许前移的光标，可以看作是一个位于单向齿轮上的窗口，只能向前移动。这一特点的有利之处在于一旦通过了一条记录，光标就会完全忘记该记录，因为永远不会回到该记录上。静态光标则移去了单向齿轮，允许向后移动；因为也能向后移动，光标需要跟踪这些记录。由于这个原因，静态光标比只许前移的光标慢。
+
+对于键集和动态类型的光标，窗口可以前后移动，但所看到的内容可能会改变。键集光标可以看到别人对数据的更改，但看不到新的或已删除的记录。因此，记录集是固定的，但不是内容固定。动态光标将它扩展了，不仅可以改变记录的内容，而且可以改变记录集。所以在动态光标中能够看到有新的记录出现，同时删除的记录从记录集中消失。
+
+使用的光标类型取决于想达到的目的。如果只想浏览记录，也许是为了创建一个表格或一个选择列表，那么用只许前移的光标是最好不过了。虽然使用其他类型的光标速度可能会慢一些，但也可以正常工作。
+
+光标的类型会影响性能，特别是服务器光标。例如，在微软的SQL Server 6.5中，键集和静态类型的光标都需要在临时数据库（tempdb）中放入一个完整的数据拷贝。其中，键集类型的光标相比较而言稍微高效一些，因为它只将键拷入临时数据库。对于SQL Server 7.0情况不是这样，不同类型的光标的运行效率差别不是很大。
+\end{itemize}
+	\item  光标位置
+
+既然已经解释了什么是光标，以及光标如何管理数据，但是光标在哪里呢？答案不是固定的，因为光标依赖于数据存储。某些数据存储，比如微软的SQL Server，有自身的光标服务；而别的如微软的Access却没有光标服务。
+
+当打开一个记录集时，必须选择是否希望数据存储管理光标，或是希望OLE DB和ADO在本地为你管理光标。后者可以实现是因为OLE DB有其自己的光标服务。通过使用Connection对象或Recordset对象的CursorLocation属性可以设置这两个选项。可以设定该属性的值为：
+\begin{itemize}
+\item adUseServer：让数据存储管理光标。
+
+\item adUseClient：让ADO管理光标。
+
+可以在打开连接或记录集之前设置这个属性：
+
+\mintvb{conPubs.CursorLocation = adUseServer}
+
+\mintvb{conPubs.Open strConn}
+
+或者：
+
+\mintvb{rsAuthors.CursorLocation = adUseClient}
+
+\mintvb{rsAuthors.Open "authors", conPubs}
+\end{itemize}
+缺省的光标是基于服务器的，理解这两种类型的区别非常重要。对于一个服务器光标来说，数据存储的任务是管理记录，所以，当使用服务器光标建立一个记录集时，数据存储管理着记录的移动、记录的更新等等。
+
+对于一个客户光标，记录集的全部内容复制给客户，受本地客户光标服务管理。这意味着对于一个客户光标，打开一个具有大量记录的记录集要比使用基于服务器的光标打开相同记录集所花费的时间长得多。也需要使用基于客户的光标的时候，在本书后面，研究组件时，会看到更多的相关的例子。
+
+	\item ``消防带''光标
+
+你可能知道``消防带''（Firehose）光标，由于能给应用程序带来高的运行效率，所以对其进行解释显得非常重要。因为``消防带''光标是一种特殊类型的光标，只有在与微软的SQL Server连接时才出现。SQL Server创建用户请求的数据集，然后把数据直接传给客户以使其尽可能快地得到数据。SQL Server自身几乎没有光标管理，这意味着它可以更快地处理数据。也就是说数据可以在非常短的时间内迅速返回到客户端。从客户方看，类型于只许前移的光标。
+
+那么，在前面讨论光标类型时，为什么没有涉及到``消防带''光标呢？因为这类光标专用于SQL Server，并仅用于使用基于服务器的光标时。这不是一种真正的光标类型，获得一个``消防带''类型光标的方法就是不指定光标的类型。
+\end{enumerate}
+
+
+\subsection{锁定}
+
+       我们已经解释了光标和如何管理数据。现在可以创建记录集了吗？恐怕还不行，因为还有一个问题没有讨论，那就是锁定。
+
+       锁定就是如何确保数据的完整性，确保更改不会被覆盖。我们需要避免的典型情况是多次更新，比如一个用户改动了一些数据，接着另一个用户立即又将其做了修改。为了对这种情况加以保护，要锁定记录，有许多不同的方法可以保证记录得到保护。可通过锁定类型来设置这些方法。
+
+\subsubsection{锁定类型}
+
+锁定类型决定更新记录时记录是否或如何被锁定。有四种类型的锁定：
+\begin{itemize}
+	\item 只读（adLockReadOnly）：缺省锁定类型，记录集是只读的，不能修改记录。
+	\item 悲观的（adLockPessimistic）：当修改记录时，数据提供者将尝试锁定记录以确保成功地编辑记录。只要编辑一开始，则立即锁住记录。
+	\item 乐观的（adLockOptimistic）：直到用Update方法提交更新记录时才锁定记录。
+
+	\item 批量乐观的（adLockBatchOptimistic）：允许修改多个记录，只有调用UpdateBatch方法后才锁定记录。
+\end{itemize}
+当不需要改动任何记录时，应该使用只读的记录集，这样提供者不用做任何检测。对于一般的使用，乐观的锁定可能是最好的选择，因为记录只被锁定一小段时间，数据在这段时间被更新。这减少了资源的使用。
+
+悲观的锁定提高了数据的完整性，但却是以牺牲并发性为代价的。并发性是许多用户在同一时间查阅数据的能力。锁定的记录对其他用户是不可见的，因而数据的并发性降低了。乐观的锁定只在一小段时间内锁定记录，所以增强了数据的并发性，但同时其他用户修改数据的几率也增加了。
+
+关于并发性和锁定的问题在微软出版的《Inside SQL Server 7.0》（作者Ron Soukup和Kalen Delaney）中做了较好的论述。这是一本很有权威的专著，所以无论如何应购买这本专著，该书有大量的有价值的资料。
+
+\subsection{创建记录集} 
+
+\subsubsection{Open方法的参数及说明}
+       创建一个记录集十分容易，通过调用Recordset对象的Open方法来实现：       
+       
+       \mintvb{Recordset.Open [Source], [ActiveConnection], [CursorType], [LockType], [Options]}
+
+       其参数及说明如Table~\ref{t:open}所示：
+
+%表8-3  Open方法的参数及说明
+
+
+%\begin{table}
+\begin{longtblr}[
+	caption={Open方法的参数及说明},
+	label={t:open}
+	]{
+	colspec = {lp{10cm}},
+	hline{1,Z} = {2pt},
+	hline{2} = {1pt},
+	} 
+参数 & 说明\\ 
+Source & 数据源。可以是数据库中的表名、存储的查询或过程、 SQL字符串、Command对象或适用于提供者的其他命令对象\\ 
+ActiveConnection & 记录集使用的连接。可以是一个连接字符串或者一个打开的Connection对象\\ 
+CursorType & 使用的光标类型。必须是定义的光标类型中的一种缺省值为 adForwardOnly\\ 
+LockType & 使用的锁定类型。必须是定义的锁定类型中的一种缺省值为 adLockReadOnly\\ 
+Options & 告诉提供者Source参数的内容是什么如表、文本字符串等等\\ 
+\end{longtblr}
+%\end{table}
+例如，要打开数据库pubs中authors表上的记录集：
+\begin{amzcode}{vb.net}
+Dim rsAuthors
+Set rsAuthors = Server.CreateObject("ADODB.Recordset")
+rsAuthors.Open "authors", strConn
+' Do something here
+rsAuthors.Close
+Set rsAuthors = Nothing
+\end{amzcode}
+
+注意，有几个参数没有指定。实际上，所有的参数都是可选的，可以在打开记录集之前为它们设置相应的属性值：
+\begin{amzcode}{vb.net}
+Dim rsAuthors
+Set rsAuthors = Server.CreateObject("ADODB.Recordset")
+With rsAuthors
+       .Source = "authors"
+       .ActiveConnection = strConn
+       .CursorType = adOpenForwardOnly
+       .LockType = adLockReadOnly
+       .Open
+End With
+' Do something here
+rsAuthors.Close
+Set rsAuthors = Nothing
+\end{amzcode}
+一旦打开记录集，当前指针自动地位于第一条记录上。如果在记录集中没有记录，那么EOF和BOF属性都是True：
+\begin{amzcode}{vb.net}
+rsAuthors.Open "authors", strConn
+If rsAuthors.BOF and rsAuthors.EOF Then
+       ' Recordset is empty
+End If
+\end{amzcode}
+
+
+Options参数
+
+Open方法的Options参数允许指定命令文本内容。它可以是以下CommandTypeEnum常数之一：
+\begin{itemize}[]
+	\item adCmdText：文本命令，比如SQL字符串。
+	\item adCmdTable：表名。
+	\item adCmdStoredProc：存储过程名。
+	\item adCmdFile：保存的记录集的文件名。
+	\item adCmdTableDirect：表名。
+	\item adCmdURLBind：URL地址。
+\end{itemize}
+adCmdTable与adCmdTableDirect的区别很小，如果想使用表中的全部列，使用adCmdTableDirect将由于ADO执行了某些内部优化而使运行速度变得稍快一些。
+
+如果没有指定命令的类型，ADO必须推算出执行的命令的类型，这将导致额外的开销。
+
+这里还有两个选项：adCmdUnspecified表示没有指定类型；adCmdUnknow表示命令的类型未知。一般地可能不会使用它们。
+
+额外的选项
+
+Options参数可以是以上常数中的任一个，但也可以加入下列ExecuteOptionEnum常数：
+\begin{itemize}[]
+\item adAsyncExcute：异步地执行命令。
+
+\item adAsyncFetch：取得初始的行集后，异步地获取剩下的行。
+
+\item adAsyncFetchBlocking：除了获取记录不阻止命令运行以外，其他与adAsyncFetch相似。
+
+\item  adExechteNoRecords：命令不返回任何记录。
+\end{itemize}
+异步处理意味着在后台执行操作，可以运行命令，然后继续其他工作，而不需要等待其执行完毕（同步操作）。当创建用户界面时，这显得特别方便，因为可以从命令执行中返回，向用户显示一些内容，而同时数据的获取仍然在后台进行。当返回记录集时，这对ASP程序员来说不是很有用，因为脚本语言不支持ADO事件，所以记录集何时已完成填充移无法得知。当处理更新、删除或插入数据命令以及不返回记录集的时候，可以使用异步操作，即仅在不关心结果的情况下才能使用。
+
+在另一方面，adExecuteNoRecords选项十分有用。它告诉ADO执行的命令不返回任何数据。所以，就没有必要创建记录集（总之，可能为空）。这会加速正在运行的更新或添加数据的查询操作。
+
+为了加入这些选项之一，可以使用Or符号（等同于加号``+''）
+
+\mintvb{adCmdStoredProc Or adExecuteNoRecords}
+
+\mintvb{adCmdStoreProc + adExecuteNoRecords}
+
+在下一章，将看到对相关内容更详细的介绍，因为这在处理命令（而不是记录集）时会更有用。
+
+\subsubsection{在记录集中移动}
+
+一旦打开一个记录集，经常需要遍历每一条记录。这需要使用EOF属性。当到达记录集的末尾时，EOF就变为True，因为可以这样创建一个循环：
+\begin{amzcode}{vb.net}
+rsAuthors.Open "authors", strConn
+While Not rsAuthors.EOF
+       Response.Write rsAuthors("au_lname:) & ", " & _
+                             rsAuthors("au\_fname") & "{\textless}BR{\textgreater}"
+       rsAuthors.MoveNext
+Wend
+\end{amzcode}
+上面的例子一直循环到EOF属性为True时才退出。MoveNext方法用于移到下一条记录。
+
+如果记录集允许向后移动，则可以使用MovePrevious方法。在这种情况下，循环中需要检测BOF属性值。另外分别还有移动到第一条和最后一条记录的MoveFirst和MoveLast方法：
+\begin{amzcode}{vb.net}
+rsAuthors.Open "authors", strConn, adOpenDynamic
+' Now on first record
+rsAuthors.MoveLast
+' Now on last record
+rsAuthors.MovePrevious
+rsAuthors.MovePrevious
+' Now three rows from the end of the recordset
+rsAuthors.MoveFirst
+' Back at the beginning again
+\end{amzcode}
+
+\subsubsection{使用Fields集合}
+
+Fields集合包含记录集中每一字段（列）的Fields对象。Fields集合是记录集的缺省集合，因此在访问字段时可以省略，就如同上面的While...Wend例子中的情况。因此，有多种访问字段的方法：
+\begin{amzcode}{vb.net}
+rsAuthors.Fields("au_lname").Value
+rsAuthors("au_lname).Value
+rsAuthors(1).Value
+rsAuthors.Fields(1).Value
+\end{amzcode}
+可以使用字段名，或使用它在集合中的位置。使用名字是最好的，因为这样将使代码更易于维护。
+
+Value属性是字段的缺省属性，因此也可以省略，比如：
+
+rsAuthors("au\_lname")
+
+如果想遍历所有字段，可以使用For Each结构：
+\begin{amzcode}{vb.net}
+For Each fldAuthor In rsAuthors.Fields
+       Response.Write fldAuthor.Name & " : " & _
+                             fldAuthor.Value & "{\textless}BR{\textgreater}"
+Next
+\end{amzcode}
+这个例子将打印每一个字段的名字和值。
+
+\subsubsection{书签}
+
+当在记录集中移动时，可能需要保留记录的位置，以后再移回来。同真实的书签相似，一个记录集书签是一个指向单个记录的唯一的指针。
+
+为了使用书签，只需将Bookmark属性值赋予一个变量：
+
+\mintinline[]{vb.net}|varBkmk = rsAuthors.Bookmark|
+
+然后，可以在记录集中移动，以后可以通过相反的命令将记录移到做过书签标记的相应记录上：
+
+\mintinline[]{vb.net}|rsAuthors.Bookmark = varBkmk|
+
+在记录集中查找记录时，书签是非常有用的。在本章稍后的节中有一个相关的例子。
+
+注意，并非所有记录集都支持书签，Supports方法（在下面讨论）将能识别其是否支持书签。
+
+值得注意的重要一点是，不能跨越不同的记录集使用书签，即使这些记录集是相同的命令创建的。考虑一下以下代码：
+\begin{amzcode}{vb.net}
+rsAuthors.Open "authors", strConn
+rsAuthorsOther.Opne "authors", strConn
+varBkmk = rsAuthors.Bookmark
+varBkmkOther = rsAuthorsOther.Bookmark
+\end{amzcode}
+尽管两个记录集是用相同的命令创建的，但记录集的书签是不一样的。
+
+可以使用Clone方法获得可交换的书签，但在这里我们不讨论它。
+
+\subsubsection{支持的功能}
+
+如上所述，并非所有的记录集都支持书签。还有许多其他的记录集选项也不是被所有的提供者或记录集类型支持的，因此可以用Supports方法验证一下。
+
+Supports方法使用一个或多个CursorOptionEnum值作为参数，返回True或False表明是否支持该选项。这些值的列表相当庞大，所以将其列于附录F中。
+
+例如：
+\begin{amzcode}{vb.net}
+If rsAuthors.Supports(adBookmark) Then
+	' The recordset supports bookmarks
+	varBkMk = rsAuthors.Bookmark
+End If
+\end{amzcode}
+       可以使用Or或加号``+''组合多个常数：
+\begin{amzcode}{vb.net}
+       If rsAuthors.Supports(adBookmark Or adFind) Then
+              ' The recordset supports bookmarks and use of Find
+              varBkMk = rsAuthors.Bookmark
+       End If
+\end{amzcode}
+\begin{codebox}{创建查询}{createQuery}
+	\begin{amzcode}{vb.net}
+Sub connect()
+
+Dim cnn As New ADODB.Connection
+Dim rst As New ADODB.Recordset
+cnn.Open "DRIVER={SQLite3 ODBC Driver};Database=C:\Users\Administrator\Desktop\tmp\fee2023.db"
+Dim strSql As String
+Dim i As Integer
+'strSql = "SELECT * FROM ""20231101"""
+strSql = "SELECT * FROM sqlite_master where type = 'table'"
+rst.Open strSql, cnn, adOpenKeyset, adLockReadOnly, -1
+'rst.Filter = "type='table'"
+If rst.Supports(adBookmark) Then
+MsgBox "支持标签！"
+End If
+For i = 1 To rst.RecordCount
+	'读取或写入数据或其它相关操作
+	Debug.Print rst.Fields("sql")
+	rst.MoveNext
+Next
+'cnn.Execute "create table a (a, b, c);" '直接Sql操作
+rst.Close
+cnn.Close
+
+End Sub
+	\end{amzcode}
+\end{codebox}
+\subsection{过滤记录集}
+
+       过滤是一种暂时地限定记录集中可见记录的一种方法。如果仅显示记录集中的某些记录，但又不需要每次都重新查询数据库，这种方法非常有用。
+
+\subsubsection{使用条件过滤}
+
+Filter属性拥有多个参数，其中一个就是条件表达式，它非常像SQL中Where子句：
+
+\mintinline[]{vb.net}|rsAuthors.Filter = "state = 'ca'"|
+
+这个语句限定记录集只显示州名为ca的记录。使用这个过滤条件将使当前指针回到第一条匹配记录上。可以遍历记录集中的全部记录，并且只有匹配条件的记录才可见。
+
+不仅仅限于单一条件，还可以使用And或Or把多个条件连接在一起：
+
+\mintvb{rsAuthors.Filter = "au_lname = 'Homer' Or au_lname = 'Francis'"}
+
+这将过滤出姓为Francis或Homer的记录。
+
+上面的例子显示了一个列匹配一个值的过滤方法，也可以使用下面操作符中的任何一种：
+
+{\textless}：小于。
+
+{\textgreater}：大于。
+
+{\textless}=：小于等于。
+
+{\textgreater}=：大于等于。
+
+{\textless}{\textgreater}：不等于。
+
+LIKE：通配符。
+
+当使用通过配符操作时，可以使用``*''或``\%''符号。例如：
+
+\mintvb{rsAuthors.Filter = "au\_lname LIKE 'Ho\%'"}
+
+``*''或``\%''作为一个通配符，匹配任何字符，因此上面的例子会匹配au\_lname字段中以``Ho''字符开始的所有记录。
+
+可以使用空字符串清空过滤条件，这样将显示全部记录：
+
+\mintvb{rsAuthors.Filter = ""}
+
+\subsubsection{使用常数过滤}
+
+Filter属性也能用FilterGroupEnum常数作为其参数：
+\begin{itemize}[]
+\item adFilterNone：清空当前过滤条件，与使用一个空字符串的效果相同。
+
+\item adeFilterPendingRecords：只显示那些已改变的，但还没送到服务器的记录，只在成批更新模式下可用。
+
+\item adFilterAffectedRecords：只显示那些受上一次调用Delete、Resync、UpdateBatch和CancelBatch方法影响的记录。
+
+\item adFilterFetchedRecords：显示高速缓存中的记录，即上一次调用读取记录的命令时的结果。
+
+\item adFilterConflictingRecords：显示在上一次成批更新中更新失败的记录。
+\end{itemize}
+稍后会看到关于成批更新的介绍。
+
+\subsubsection{使用书签过滤}
+
+最后一种过滤记录集的方法是使用一个书签数组。可以使用这个技术创建一个记录列表，然后再应用一个过滤条件对其过滤。例如：
+\begin{amzcode}{vb.net}
+rsAuthors.Open "authors", strConn, adOpenKeyset, _
+                     adLockReadOnly, adCmdTableDirect
+' Save bookmark for the first record
+avarBkmk(0) = rsAuthors.Bookmark
+' Move forward two records
+rsAuthors.MoveNext
+rsAuthors.MoveNext
+' Save bookmark for the third record
+avarBkmk(1) = rsAuthors.Bookmark
+' Move to the end and save the bookmark
+rsAuthors.MoveLast
+avarBkmk(2) = rsAuthors.Bookmark
+' Now apply the filter
+rsAuthors.Filter = Array(avarBkmk(0), avarBkmk(1), avarBkmk(2))
+' Now loop through the recordset
+
+While Not rsAuthors.EOF
+       Response.Write rsAuthors("au_lname") & "{\textless}BR{\textgreater}"
+       rsAuthors.MoveNext
+Wend
+\end{amzcode}
+当循环至记录集末尾位置时，会发现只有三条记录，因为只有三个书签应用于过滤条件。
+
+注意，不能直接使用数组avarBkmk，必须使用Array函数将各个书签转换成不同的数组。
+\begin{codebox}{BookMarkFilter}{BookMarkFilter}
+	\begin{amzcode}{vb.net}
+	Sub filter()
+	
+	Dim cnn As New ADODB.Connection
+	Dim rst As New ADODB.Recordset
+	cnn.Open "DRIVER={SQLite3 ODBC Driver};Database=C:\Users\Administrator\Desktop\tmp\fee2023.db"
+	Dim strSql As String
+	Dim i As Integer, avarBkmk(0 To 5)
+	strSql = "SELECT * FROM ""20231101"""
+	'strSql = "SELECT * FROM sqlite_master where type = 'table'"
+	'rst.Open "20231101", cnn, adOpenKeyset, adLockReadOnly, adCmdTableDirect
+	rst.Open strSql, cnn, adOpenKeyset, adLockReadOnly, adCmdText
+	'rst.Filter = "type='table'"
+	' Save bookmark for the first record
+	avarBkmk(0) = rst.Bookmark
+	' Move forward two records
+	rst.MoveNext
+	rst.MoveNext
+	' Save bookmark for the third record
+	avarBkmk(1) = rst.Bookmark
+	' Move to the end and save the bookmark
+	rst.MoveLast
+	avarBkmk(2) = rst.Bookmark
+	' Now apply the filter
+	rst.filter = Array(avarBkmk(0), avarBkmk(1), avarBkmk(2))
+	' Now loop through the recordset
+	
+	While Not rst.EOF
+		Debug.Print rst("产品料号") & rst("规格说明")
+		rst.MoveNext
+	Wend
+	'cnn.Execute "create table a (a, b, c);" '直接Sql操作
+	rst.Close
+	cnn.Close
+	
+	End Sub
+	\end{amzcode}
+\end{codebox}
+\section{查找记录}
+
+       查找单个的记录由Find方法来完成。它类似于使用条件的过滤方法：
+
+       \mintvb{rsAuthors.Find "au_lname = 'Lloyd'"}
+
+       它们之间最主要的区别在于这种方法只能有一个条件，不允许使用And或Or。
+
+       可以使用可选的参数指定一些额外的选项，其完整的语法如下：
+
+       \mintvb{Recordset.Find Criteria, [SkipRows], [SearchDirection], [Strat]}
+
+       SkipRows是一个数字，表示在开始查找记录前跳过的行数。缺省为0，查询从当前行开始。
+
+       SearchDirection可以是adSearchForward，表示向前搜索记录；或者adSearchBackward，表示向后搜索记录。
+
+       Start是一个书签，指出开始查找记录的位置。
+
+       如果打开相应的记录，当前指针将位于匹配的记录上，如果没有找到记录，那么将位于下面两个位置中的一个：
+		\begin{itemize}[]
+       \item 如果是向前搜索，则位于记录集末尾位置的后面，EOF被设置为True。
+
+       \item 如果是向后搜索，则位于记录集开始位置的前面，BOF被设置为True。
+	\end{itemize}
+       使用书签保存位置
+
+       如果没有找到相应的记录，记录的重新定位可以由书签轻松解决，因为可以为当前位置制作书签，如果在查找记录过程中没有找到所需的记录，那么再移回到上次保存的位置。
+
+       例如：
+\begin{amzcode}{vb.net}
+       ' Save the current position
+       varBkmk = rsAuthors.Bookmark
+       ' Find the record
+       rsAuthors.Find "au\_lname = 'Sussman'"
+       ' Was it found
+       If Not rsAuthors.EOF Then
+              Response.Write "Found: " & rsAuthors ("au\_lname") & ", " & _
+                                   rsAuthors("au_fname") & "\textless}BR\textgreater"
+       Else
+              Response.Write "Not found. Moving \textless}BR\textgreater}"
+              rsAuthors.Bookmark = varBkmk
+       End If
+\end{amzcode}
+       使用Filter属性强于Find方法的一个原因是Find语句只能一个查询条件，而Filter属性允许指定多个条件。也就是说，当想要查找的字段条件不止一个时，不能使用Find方法。然而，可以先过滤记录，如果找到记录可以再删除过滤条件。
+
+\subsection{修改记录}
+
+       大部分的Web只用来显示信息，而Web应用程序正变得越来越普遍。在这种情形下，如果只拥有只读数据确实没有什么用处。创建一个应用程序，几乎总是需要修改现存的数据或是添加新的数据，其方法有许多。在本节，将学习如何使用Recordset对象的方法来更改数据。在下一章，将会看到如何使用查询完成相同的任务。
+
+       可以设置除了adLockReadOnly之处的锁定类型配合使用Recordset对象的方法去修改数据（假定有相应的权限）。记住，缺省的锁定类型是只读的。
+
+\subsubsection{添加记录}
+
+要在记录集中添加记录，使用AddNew方法。有两种使用AddNew的方法。第一种没有任何参数，仅仅调用AddNew，在记录集的最后添加一个空记录。在调用Update方法保存所做的更改之前，可以随意地修改字段中的数据：
+\begin{amzcode}{vb.net}
+With rsAuthors
+	.Open "authors", strConn, adOpenDynamic, _
+		adLockOptimistic, adCmdTableDirect
+	.AddNew
+    .Fields("au_id") = "123-12-1234"
+    .Fields("au_lname") = "Lloyd"
+    .Fields("au_fname") = "Janine"
+    .Fields("contract") = 0
+	.Update
+End With
+\end{amzcode}
+这只是添加了一条新记录，设置四个强制型的字段值。
+
+另一种方法是使用AddNew方法的可选参数，这是两个数组，一个是字段名，另一个是字段的值。
+\begin{amzcode}{vb.net}
+With rsAuthors
+   .Open "authors", strConn, adOpenDynamic, _
+   adLockOptimistic, adCmdTableDirect
+   .AddNew Array("au_id", "au_lname", "au_fname", "contract"), _
+                 Array("123-12-1234", "Lloyd", "Janine", 0)
+End With
+\end{amzcode}
+这个方法不需要调用Update方法。
+
+\subsubsection{编辑记录}
+
+编辑记录与添加记录的方法相似，不同之处在于不需要调用AddNew方法：
+\begin{amzcode}{vb.net}
+strSQL = "SELECT * FROM authors" & _
+              "WHERE au_lname='Lloyd'"
+With rsAuthors
+   .Open strSQL, strConn, adOpenDynamic, _
+          adLockOptimistic, adCmdText
+   .Fields("contract") =1
+   .Update
+End With
+\end{amzcode}
+这仅仅是将当前记录（在这种情况下是第一条记录，因为刚刚打开记录集）的contract字段的值赋为1。
+
+\subsubsection{删除记录}
+
+删除记录需调用Delete方法。删除哪一条记录取决于可选的参数，可以是下面AffectEnum常数中的一个：
+\begin{itemize}[]
+\item adAffectCurrent：删除当前记录，缺省操作。
+
+\item adAffectGroup：删除匹配当前过滤条件的所有记录。
+
+\item adAffectAll：删除记录集中的全部记录。
+
+\item adAffectAllChapters：删除所有段（chapter）中的记录。
+\end{itemize}
+最简单的调用形式是：
+
+\mintvb{rsAuthors.Delete}
+
+这将删除当前记录。如果有一个过滤条件，并想删除所有匹配该条件的记录，那么仅需加上适当的常数：
+
+\mintvb{rsAuthors.Delete adAffectGroup}
+
+\subsubsection{自动递增的字段}
+
+当添加一条新记录时，一般会碰到这样一个问题：如何处理那些自动递增的或标识字段（Identity Filed）。这些字段是由服务器自动更新的数字字段，一般用于为每一行提供一个唯一的字段值。当数据库含有多个表时，那么这个唯一的字段经常被当作关联表的外键。所以，添加一条新记录时，经常需要找出它们的值。
+
+例如，考虑一下有两个字段的表，一个自动递增的ID字段（SQL Server中的IDENTITY字段或Access中的AutoNumber字段），一个字段名为Name的文本字段。现在考虑一下下面的向表中添加记录的代码：
+\begin{amzcode}{vb.net}
+With rsData
+   .Open "tblTest", adOpenDynamic, adLockOptimistic, adCmdTableDirect
+   .AddNew
+   .Fields("Name") = "Janine"
+   .Update
+   intID = .Fields("ID")
+End With
+\end{amzcode}
+看上去很平常，但添加记录后是否能够取到这个值依赖于光标的类型、锁定的类型以及ID字段是否被索引。Table~\ref{t:id}列出了哪些组合允许获取新插入的ID字段的值。其他没有列在表中的组合不能返回ID字段的值。
+%\begintable}
+\begin{longtblr}[
+	caption = {获取ID字段的值与光标、锁定的类型及ID字段是否被索引的关系},
+	label = {t:id}
+	]{
+	colspec = {cccccc},
+	hline{1,Z} = {2pt}
+	}  
+提 供者 & 对 象 & 索 引 & 光标位置 & 光标类型 & 锁定类型\\ 
+ODBC & Access 97 & 是 & 服务器 & 键集 & {悲观型\\ 乐观型}\\ 
+ &  Access 2000 & 是 & 服务器 & 键集 & {悲观型\\ 乐观型}\\ 
+ &  & 否  & 客户  & 所有 & {悲观型\\ 乐观型}\\ 
+ & SQL Server 6.5 & 是 & 服务器 & 键集 & {悲观型\\ 乐观型}\\ 
+ & SQL Server 7.0 & 是 & 服务器 & 键集 & {悲观型\\ 乐观型}\\ 
+ &  &  & 客户 & 所有 & {悲观型\\ 乐观型}\\ 
+ &  & 否 & 客户 & 所有 & {悲观型\\ 乐观型}\\ 
+Jet 4.0 & Access 97 & 是 & 服务器 & 所有 & 所有\\ 
+ & Access 2000 & 是 & 服务器 & 所有 & 所有\\ 
+ &  & 否 & 客户 & 所有 & {悲观型\\ 乐观型}\\ 
+SQL OLE DB & {SQL Server 6.5\\ SQL Server 7.0} & 是 & 服务器 & 键集 & {悲观型\\ 乐观型}\\ 
+ &  &  & 客户 & 所有 & {悲观型\\ 乐观型}\\ 
+ &  & 否 & 客户 & 所有 & {悲观型\\ 乐观型}\\ 
+\end{longtblr}
+%\endtable}
+    这清楚地说明必须使用正确的组合，才能保证能取得ID字段的正确值。否则，可能会得到0、空值或NULL，这取决于组合的方式。在下一章中处理存储过程时，将见到另一种从SQL Server获取IDENTITY字段值的方法。
+%\enddocument}

@@ -1,0 +1,150 @@
+\section{ADODB.Stream读写文件}
+\subsection{Adodb.Stream读文件}
+loadTextFromFile函数，
+\begin{codebox}{读取文件}{loadTextFromFile}
+	\begin{amzcode}{vbnet}
+		Function loadTextFromFile(filePath, charset)
+		
+			With CreateObject("ADODB.Stream")
+				.Type = 1 ' TypeBinary
+				.Open
+				.LoadFromFile filePath
+				.Position = 0
+				.Type = 2 ' adTypeText
+				.charset = charset
+				loadTextFromFile = .ReadText
+				.Close
+			End With
+		
+		End Function
+	\end{amzcode}
+\end{codebox}
+\subsection{Adodb.Stream写文件}
+saveTextToFile函数，
+\begin{codebox}{写文件}{saveTextToFile}
+	\begin{amzcode}{vbnet}
+		Sub saveTextToFile(content, filePath, charset)
+		
+			smartCreateFolder CreateObject("Scripting.FileSystemObject").GetParentFolderName(filePath)
+				With CreateObject("ADODB.Stream")
+					.Type = 2 ' adTypeText
+					.Open
+					.charset = charset
+					.WriteText content
+					.Position = 0
+					.Type = 1 ' TypeBinary
+					.SaveToFile filePath, 2
+					.Close
+				End With
+			
+		End Sub
+		Sub smartCreateFolder(folder)
+		
+			With CreateObject("Scripting.FileSystemObject")
+				If Not .FolderExists(folder) Then
+					smartCreateFolder .GetParentFolderName(folder)
+					.CreateFolder folder
+				End If
+			End With
+		
+		End Sub
+		Sub showInNotepad(content)
+		
+			Dim tempPath
+			
+			With CreateObject("Scripting.FileSystemObject")
+				tempPath = CreateObject("WScript.Shell").ExpandEnvironmentStrings("%TEMP%") & "\" & .GetTempName
+				With .CreateTextFile(tempPath, True, True)
+					.WriteLine content
+					.Close
+				End With
+				CreateObject("WScript.Shell").Run "notepad.exe " & tempPath, 1, True
+				.DeleteFile tempPath
+			End With
+		
+		End Sub
+	\end{amzcode}
+\end{codebox}
+
+\subsection{Byte转指定编码的文本}
+\begin{codebox}{Byte转文本}{byte2text}
+	\begin{amzcode}{vbnet}
+		Function ByteToText(arrByte, charset As String) As String
+			With CreateObject("Adodb.Stream")
+				.Type = 1 'adTypeBinary
+				.Open
+				.write arrByte
+				'.SaveToFile strFileName, 2 'adSaveCreateOverWrite
+				.Position = 0
+				.Type = 2
+				.charset = charset
+				ByteToText = .ReadText
+				.Close
+			End With
+		End Function
+	\end{amzcode}
+\end{codebox}
+
+\subsection{Byte写入文件}
+\begin{codebox}{Byte写入文件}{byte2file}
+	\begin{amzcode}{vbnet}
+		Sub ByteToFile(arrByte, strFileName As String)
+			With CreateObject("Adodb.Stream")
+				.Type = 1 'adTypeBinary
+				.Open
+				.write arrByte
+				.SaveToFile strFileName, 2 'adSaveCreateOverWrite
+				.Close
+			End With
+		End Sub
+	\end{amzcode}
+\end{codebox}
+\subsection{latin转其他编码}
+\begin{codebox}{编码转换}{uncodeTogbk}
+	\begin{amzcode}{vbnet}
+		Sub writeToFile(tFileName As String, sText As String, Optional chartset As String = "utf-8")
+			Dim adoStream As Object
+			Dim FileSystem As Object
+			
+			Set adoStream = CreateObject("ADODB.Stream")
+			'adoStream.Open
+			adoStream.Type = 2 '1 for binary, 2 for adtext
+			'adoStream.Write sText
+			adoStream.Open
+			adoStream.charset = "ISO-8859-1" ' latin1
+			adoStream.WriteText sText, 1
+			adoStream.Position = 0
+			adoStream.Type = 2
+			adoStream.charset = chartset
+			Debug.Print adoStream.ReadText
+			
+			Set FileSystem = CreateObject("Scripting.FileSystemObject")
+			If FileSystem.FileExists(tFileName) Then FileSystem.DeleteFile tFileName
+			adoStream.SaveToFile tFileName, 2
+			adoStream.Close
+		
+		End Sub
+		
+		Function latinToText(sText As String, Optional chartset As String = "utf-8") As String
+			Dim adoStream As Object
+			Dim FileSystem As Object
+			Set adoStream = CreateObject("ADODB.Stream")
+			'adoStream.Open
+			adoStream.Type = 2 '1 for binary, 2 for adtext
+			'adoStream.Write sText
+			adoStream.Open
+			adoStream.charset = "ISO-8859-1" ' latin1
+			adoStream.WriteText sText, 1
+			adoStream.Position = 0
+			adoStream.Type = 2
+			adoStream.charset = chartset
+			latinToText = adoStream.ReadText
+			
+			'    Set FileSystem = CreateObject("Scripting.FileSystemObject")
+			'    If FileSystem.FileExists(tFileName) Then FileSystem.DeleteFile tFileName
+			'    adoStream.SaveToFile tFileName, 2
+			adoStream.Close
+		
+		End Function
+	\end{amzcode}
+\end{codebox}
