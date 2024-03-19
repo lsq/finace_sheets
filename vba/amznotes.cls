@@ -48,6 +48,7 @@
 \RequirePackage{tabularx}
 \RequirePackage{tabularray}
 \RequirePackage[scheme=plain]{ctex}		%中文字体
+\RequirePackage{sim-os-menus}
 
 \ifamznotes@math
     \RequirePackage{mathtools}          % for math macros; also loads amsmath
